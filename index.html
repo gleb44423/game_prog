@@ -1,0 +1,40 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cap Runner</title><style>
+*{box-sizing:border-box;margin:0}body{min-height:100vh;background:#1e1b4b;color:#fff;font:16px system-ui,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px}
+h1{font-size:1.7rem;margin-bottom:10px;color:#fde047;letter-spacing:1px}canvas{width:100%;max-width:800px;border-radius:12px;box-shadow:0 10px 30px #0009;touch-action:manipulation}
+p{margin-top:12px;color:#c7d2fe;text-align:center;line-height:1.8}kbd{background:#312e81;padding:2px 9px;border-radius:5px}
+</style></head><body><h1>CAP RUNNER</h1><canvas id=cv width=800 height=300></canvas>
+<p><kbd>Пробел</kbd> <kbd>↑</kbd> <kbd>W</kbd> — прыжок · <kbd>P</kbd> — пауза<br>На телефоне — касание экрана</p><script>
+var c=cv.getContext('2d'),W=800,G=250,S=0,sc=0,sp=6,P,O=[],nx=0,t0=0,off=0,pa=0,go=0,hi=0;
+try{hi=+localStorage.capHi||0}catch(e){}
+var CL=[[100,40],[420,25],[700,55]],CC=['#2f9e5b','#3b7dd8','#e0743a','#8b5cf6'];
+function reset(){P={y:G,vy:0,f:0};O=[];sc=0;sp=6;nx=300;off=0}
+function act(){if(S==1){if(P.y>=G)P.vy=-15.5}else{if(S==2&&Date.now()-go<400)return;reset();S=1}}
+function U(k){sp=Math.min(6+sc/200,15);sc+=sp*k*.08;off+=sp*k;P.vy+=.85*k;P.y+=P.vy*k;if(P.y>=G){P.y=G;P.vy=0}P.f+=sp*k*.06;nx-=sp*k;
+if(nx<=0){var n=Math.random()<.3?2:1,col=CC[Math.floor(Math.random()*4)],w=28+Math.random()*10,h=40+Math.random()*18;
+for(var i=0;i<n;i++)O.push({x:W+20+i*(w+3),w:w,h:h,c:col});nx=sp*40+Math.random()*260+n*30}
+O.forEach(function(o){o.x-=sp*k});O=O.filter(function(o){return o.x>-80});
+O.forEach(function(o){if(98>o.x+3&&76<o.x+o.w-3&&P.y-2>G-o.h+4){S=2;go=Date.now();if(sc>hi){hi=Math.floor(sc);try{localStorage.capHi=hi}catch(e){}}}})}
+function cloud(x,y){c.fillStyle='#fff';[[0,0,22],[22,-8,26],[50,0,20],[26,6,24]].forEach(function(a){c.beginPath();c.arc(x+a[0],y+a[1],a[2],0,7);c.fill()})}
+function can(o){var y=G-o.h;c.fillStyle=o.c;c.fillRect(o.x+2,y+6,o.w-4,o.h-6);c.fillStyle='#0003';for(var i=0;i<3;i++)c.fillRect(o.x+7+i*((o.w-14)/2.5),y+12,3,o.h-20);
+c.fillStyle='#374151';c.fillRect(o.x-2,y,o.w+4,7);c.fillRect(o.x+o.w/2-6,y-4,12,4)}
+function pl(){var x=70,y=P.y,r=y<G,s=Math.sin(P.f*2.2),a=r?6:s*8;c.save();if(!r)c.translate(0,-Math.abs(s)*2);
+c.fillStyle='#2f5fa8';c.fillRect(x+7+(r?-3:a),y-18,10,14);c.fillRect(x+19+(r?5:-a),y-18,10,14);
+c.fillStyle='#fff';c.fillRect(x+5+(r?-3:a),y-5,14,5);c.fillRect(x+18+(r?5:-a),y-5,14,5);
+c.fillStyle='#16161d';c.fillRect(x+4,y-42,28,26);c.fillStyle='#2b2b36';c.fillRect(x+10,y-28,16,7);
+c.fillStyle='#0d0d12';c.fillRect(x+13-a*.6,y-40,9,18);c.fillStyle='#f1c27d';c.fillRect(x+13-a*.6,y-23,9,5);
+c.fillRect(x+9,y-60,20,19);c.fillStyle='#6b4423';c.fillRect(x+5,y-58,6,10);c.fillRect(x+7,y-50,4,6);c.fillRect(x+25,y-64,6,5);
+c.fillStyle='#4b5d2a';c.fillRect(x+8,y-68,22,9);c.fillStyle='#2f3b1a';c.fillRect(x+11,y-67,5,4);c.fillRect(x+22,y-64,6,4);c.fillStyle='#8a9a5b';c.fillRect(x+17,y-66,4,3);
+c.fillStyle='#35441c';c.fillRect(x-5,y-62,14,4);c.fillStyle='#ff4fa3';c.fillRect(x+17,y-54,13,6);c.fillRect(x+10,y-53,8,2);
+c.fillStyle='#a0522d';c.fillRect(x+22,y-44,6,2);c.restore()}
+function D(){var g=c.createLinearGradient(0,0,0,G);g.addColorStop(0,'#4cc3ff');g.addColorStop(1,'#ffe3a3');c.fillStyle=g;c.fillRect(0,0,W,300);
+c.fillStyle='#ffd23f55';c.beginPath();c.arc(660,70,48,0,7);c.fill();c.fillStyle='#fff3b0';c.beginPath();c.arc(660,70,34,0,7);c.fill();
+CL.forEach(function(q,i){cloud(((q[0]-off*.08*(i+1))%1000+1000)%1000-100,q[1])});
+for(var i=0;i<14;i++){var h=70+(i*53)%70,x=((i*90-off*.3)%1260+1260)%1260-100;c.fillStyle=i%2?'#8b7bd8':'#a28be8';c.fillRect(x,G-h,70,h)}
+c.fillStyle='#4b4a63';c.fillRect(0,G,W,60);c.fillStyle='#a5a3c4';c.fillRect(0,G,W,8);c.fillStyle='#ffd23f';
+for(i=0;i<12;i++)c.fillRect(((i*80-off)%960+960)%960-60,G+30,40,4);
+O.forEach(can);pl();c.fillStyle='#1e1b4b';c.font='bold 20px monospace';c.textAlign='right';c.fillText('HI '+hi+'   '+Math.floor(sc),W-16,32);
+if(S!=1||pa){c.fillStyle='#1e1b4bcc';c.fillRect(0,100,W,100);c.fillStyle='#fde047';c.textAlign='center';c.font='bold 30px system-ui';
+c.fillText(pa?'Пауза':S?'Игра окончена: '+Math.floor(sc):'Cap Runner',W/2,148);c.fillStyle='#fff';c.font='18px system-ui';c.fillText(pa?'Нажмите P, чтобы продолжить':'Пробел или касание — '+(S?'ещё раз':'старт'),W/2,178)}}
+function L(t){var k=Math.min((t-t0)/16.67,3);t0=t;if(S==1&&!pa)U(k);D();requestAnimationFrame(L)}
+addEventListener('keydown',function(e){if(e.code=='Space'||e.code=='ArrowUp'||e.code=='KeyW'||e.code=='Enter'){e.preventDefault();if(!pa)act()}else if(e.code=='KeyP'&&S==1)pa=!pa});
+cv.addEventListener('pointerdown',function(){if(!pa)act()});reset();requestAnimationFrame(L)</script></body></html>
